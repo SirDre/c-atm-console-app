@@ -40,6 +40,13 @@ hlist history_hlist(void);
 atm banknotes(float balance);
 atm read_vaultdb();
 
+//Users login functions 
+int login(ulist header,hlist headerh, int acctno, int acctpin,atm cash);
+void userlogin ();
+
+int search_client(ulist header,int key); //returns 1 if it finds, 0 otherwise
+void create_log(hlist headerh,int noperation, int nopuserid,float noactions);
+
 //Display functions
 void option1(ulist header,hlist headerh,int login,int pin,atm cash);
 void option2(ulist header,hlist headerh,int login,int pin,atm cash);
@@ -653,7 +660,31 @@ atm banknotes(float balance)
 
     return cash;
 }
-
+void create_log(hlist headerh,int noperation, int nopuserid,float noactions)
+{
+    hlist newdata;
+    newdata = (hlist) malloc (sizeof(logs));
+    if (newdata!=NULL)
+    {
+        newdata->operation=noperation;
+        newdata->opuserid=nopuserid;
+        newdata->opactivity=noactions;
+        newdata->next=headerh->next;
+        headerh->next=newdata;
+    }
+}
+//checks account no = 0 false and 1 true 
+int search_client(ulist header,int key)  
+{
+    ulist l = header->next;  
+    while (l)
+    {
+        if (l->userid == key) 
+            return 1;
+        l=l->next;
+    }
+    return 0;
+}
 
 
 //ADMIN FUNCTIONS

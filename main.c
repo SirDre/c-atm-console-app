@@ -32,6 +32,21 @@ typedef struct log
 }logs;
 
 
+//ulist Records functions 
+ulist client_hlist (void);
+hlist history_hlist(void);
+
+//ATM Structures functions 
+atm banknotes(float balance);
+atm read_vaultdb();
+
+//Read&Write functions
+void write_custdb(ulist header);
+void read_custdb(ulist header);
+void read_logdb(hlist headerh);
+void write_logdb(hlist headerh);
+void write_vaultdb(atm cash);
+
 
 //init Program
 int main(int argc, int *argv[])

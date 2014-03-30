@@ -37,23 +37,23 @@ typedef struct log
 int main(int argc, int *argv[])
 {
 	
-    ulist header = client_hlist();
-    ulist l = header->next;
-    hlist headerh = history_hlist();
-
-    int loginid;
-    int pin,attempts = 0;
-
-    atm cash = read_vaultdb();
-    read_custdb(header);
-    read_logdb(headerh);
-
-    int nuserid,npin,ntype,conf,nstate, i=0, j=0;
-    float namount;
-    ulist newdata;
+	ulist header = client_hlist();
+	ulist l = header->next;
+	hlist headerh = history_hlist();
+	
+	int loginid;
+	int pin,attempts = 0;
+	
+	atm cash = read_vaultdb();
+	read_custdb(header);
+	read_logdb(headerh);
+	
+	int nuserid,npin,ntype,conf,nstate, i=0, j=0;
+	float namount;
+	ulist newdata;
  
     int op;
-  
+start:    
 	printf("\t\t -------------------------------------------- \n");    
 	printf("\t\t |         C ATM BANK LIMITED               | \n");
 	printf("\t\t |           ATM Main Menu                  | \n");
@@ -75,14 +75,104 @@ int main(int argc, int *argv[])
     switch (op)
     {
     case 1:
-	system("cls");
-	printf("\t\t --------------------------------------------\n");
+    	system("cls");
+        printf("\t\t --------------------------------------------\n");
 	printf("\t\t |    1. Initialize System                  | \n");  
 	printf("\t\t |                                          | \n");
 	printf("\t\t |                                          | \n");
 	printf("\t\t --------------------------------------------\n\n");
  
-  
+     for (i=0; i <= 20;i++) {
+ 
+        nuserid = 1000+i;
+        npin = 0000;
+        namount = 1000.00;
+        ntype = 0;
+        nstate = 0;
+        
+         newdata = (ulist) malloc (sizeof (users));
+	    if (newdata != NULL)
+	    {
+	    	
+		    if (search_client(header,nuserid) == 1)
+	        {
+	        	system("cls");
+	            printf("\tERROR: Customers accounts already exist\n");
+	            printf("\t-------------------------------------------------\n");
+	            goto start;
+	        }else{
+	       
+		        newdata->userid = nuserid;
+		        newdata->pin = npin;
+		        newdata->sum = namount;
+		        newdata->type = ntype;
+		        newdata->state = nstate;
+		        newdata->next = header->next;
+		        header->next = newdata;
+		     //add new value to atm balance
+			cash.money+=namount;
+			
+		      }   
+	        
+	    }else{
+	    	
+	    	  system("cls");
+	     	userlogin (); 
+	    }
+	    
+	        create_log(headerh,1,nuserid,namount); 
+     }  
+     
+    for (j=0; j <= 2;j++) {
+ 
+        nuserid = 2000+j;
+        npin = 0000;
+        namount = 1000.00;
+        ntype = 1;
+        nstate = 0;
+ 
+	     newdata = (ulist) malloc (sizeof (users));
+	    if (newdata != NULL)
+	    {
+		    if (search_client(header,nuserid) == 1)
+	        {
+	            system("cls");
+	            printf("\tERROR: Customers accounts already exist\n");
+	            printf("\t-------------------------------------------------\n");
+	            goto start;
+	        }else{
+	       
+		        newdata->userid = nuserid;
+		        newdata->pin = npin;
+		        newdata->sum = namount;
+		        newdata->type = ntype;
+		        newdata->state = nstate;
+		        newdata->next = header->next;
+		        header->next = newdata;
+		        
+		         //add new value to atm balance
+			cash.money+=namount;
+		      } 
+			  
+			   
+	    }else{
+	    	
+	        system("cls");
+	     	userlogin (); 	
+	    }
+	    
+	        create_log(headerh,1,nuserid,namount); 
+     }  
+
+
+    write_custdb(header);
+    write_vaultdb(cash);
+    write_logdb(headerh);  
+   
+    system("cls"); 
+    printf("%s\n" ,__TIME__);
+    printf("Initialized System Successfully!\n");
+	goto start;
     
     break;
     case 2:
@@ -94,10 +184,31 @@ int main(int argc, int *argv[])
 	printf("\t\t |                                          | \n");
 	printf("\t\t --------------------------------------------\n\n");
    
+	printf("\t\t	Please login	\n");
+	
+	printf("Enter Admin Account Number:\n");
+	INPUT
+	scanf("%6d",&loginid); 
+	printf("Enter pin:\n");
+	INPUT
+	scanf("%4d",&pin);
+	//if account number is true and login returns 1 show admin menu
+	if (login(header,headerh,loginid,pin,cash) == 1)
+	{
+	printf("Logged in user: %d\n\n",loginid);
+	      print_log(header,headerh,loginid,pin,cash);	
+	}else {
+	    
+		system("cls");
+		userlogin ();   	
+	}
 
         break;
-
     case 3:
+        system("cls");
+        userlogin ();    
+        break;
+    case 4:
         write_custdb(header);
         write_vaultdb(cash);
         write_logdb(headerh);
@@ -109,10 +220,325 @@ int main(int argc, int *argv[])
   
 }
 
+//--------------------------------------------------------------------------------------------------//
+//LOGIN
+void userlogin ()
+{
+    ulist header = client_hlist();
+    ulist l = header->next;
+    hlist headerh = history_hlist();
+
+    int loginid, pin, attempts = 0;
+
+    atm cash = read_vaultdb();
+    read_custdb(header);
+    read_logdb(headerh);
+
+    printf("\t\t --------------------------------------------\n");
+    printf("\t\t |       3. User Transactions Menu          | \n");  
+    printf("\t\t |                                          | \n");
+    printf("\t\t |                                          | \n");
+    printf("\t\t --------------------------------------------\n");
+    printf("\n\n");
+    printf("\t\t	Please login	\n");
+
+    printf("Enter Account Number:\n");
+    INPUT
+    scanf("%6d",&loginid); 
+    printf("Enter pin:\n");
+    INPUT
+    scanf("%4d",&pin);
+    //if account number is true and login returns 1 show admin menu
+    if (login(header,headerh,loginid,pin,cash) == 1)
+    {
+        printf("Logged in user: %d\n\n",loginid);
+        menu(header,headerh,loginid,pin,cash);
+    }
+     //if account number is true and login returns 1 show customer menu
+    else if (login(header,headerh,loginid,pin,cash) == 2)
+    {
+        printf("Logged in user: %d\n\n",loginid);
+        menu2(header,headerh,loginid,pin,cash);
+    }
+     //if account number is false and login returns 3 then give user 3 tries to login
+    else if (login(header,headerh,loginid,pin,cash) == 3)
+    {
+        printf("Invalid account! try again\n");
+        //Try 2
+        while (attempts<=1)
+        {
+            printf("Enter pin:\n");
+            INPUT
+            scanf("%d",&pin);
+
+            if (login(header,headerh,loginid,pin,cash) == 3)
+            {
+                attempts+= 1;
+                printf("Data invalid or blocked account! try again\a\n");
+            }
+            else if (login(header,headerh,loginid,pin,cash) == 1)
+            {
+                printf("Logged in user: %d\n\n",loginid);
+                menu(header,headerh,loginid,pin,cash);
+                break;
+            }
+            else if (login(header,headerh,loginid,pin,cash) == 2)
+            {
+                printf("Logged in user: %d\n\n",loginid);
+                menu2(header,headerh,loginid,pin,cash);
+                break;
+            }
+            else
+                printf("Invalid or blocked account! try again\n");
+        }
+    }
+    else printf("Account Number invalid! Try again!\n");
+    //Try 3
+    if (attempts==2)
+    {
+        l = header->next;
+        while (l)
+        {
+            if ((l->userid == loginid) && (l->state == 0))
+            { 
+                //Change state to 1 = Account locked
+                l->state = 1;
+                printf("Blocked Card\n");
+                //Save to file
+                write_custdb(header);
+                create_log(headerh,12,loginid,1);
+                write_logdb(headerh);
+            }
+            l=l->next;
+        }
+    }
+} 
+// function for login: if return 1 admin login, if 2 client login and 3 wrong password
+int login(ulist header,hlist headerh, int acctno, int acctpin,atm cash)
+{
+    ulist l = header->next;
+    //Loops through out the values from the clients structure
+    while (l)
+    {   //if account number, pin is true and state is unlock and type is admin return value 1
+        if ((l->userid == acctno) && (l->pin == acctpin) && (l->state == 0) && (l->type == 1))
+        {
+            system("cls"); //clear screen              
+            return 1;
+        }
+        //if account number, pin is true and state is unlock and type is customer return value 2
+        else if ((l->userid == acctno) && (l->pin == acctpin) && (l->state == 0) && (l->type == 0))
+        {
+            system("cls"); //clear screen 
+            return 2;
+        }
+        //if account number is true and pin is false and state is unlock return value 3
+        else if ((l->userid == acctno) && (l->pin != acctpin) && (l->state == 0))
+        {
+            system("cls"); //clear screen 
+            return 3;
+        }
+        l=l->next;
+    }
+    return 0;
+}
 
 
+/*---------------------------------------------------------------------------*/
+/*---------------------------------ADMIN MENU--------------------------------*/
+void menu(ulist header,hlist headerh,int login,int pin,atm cash)
+{
+    int op;
+ 
+    printf("\t\t -------------------------------------------- \n");    
+    printf("\t\t |          C ATM BANK LIMITED              | \n");
+    printf("\t\t |           Admin Main Menu                | \n"); 
+    printf("\t\t |                                          | \n");
+    printf("\t\t |          1. Create customer accounts     | \n");
+    printf("\t\t |                                          | \n");
+    printf("\t\t |          2. Delete customer accounts     | \n");
+    printf("\t\t |                                          | \n");
+    printf("\t\t |          3. Unlock customer accounts     | \n");
+    printf("\t\t |                                          | \n");
+    printf("\t\t |          4. Show all customers accounts  | \n");
+    printf("\t\t |                                          | \n");
+    printf("\t\t |          5. Display ATM Transactions Log | \n");
+    printf("\t\t |                                          | \n");
+    printf("\t\t |          0. Save&Exit                    | \n");
+    printf("\t\t --------------------------------------------\n\n");
+ 
+    INPUT
+    scanf("%d",&op);
 
+    switch (op)
+    {
+    case 1:
+        system("cls");
+        printf("\t\t --------------------------------------------\n");
+        printf("\t\t |                                          | \n");
+        printf("\t\t |        Create Customer Account           | \n");
+        printf("\t\t |                                          | \n");
+        printf("\t\t --------------------------------------------\n");
+        
+        break;
+    case 2:
+        system("cls");
+        printf("\t\t -----------------------------------------\n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::          Delete customer           :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t -----------------------------------------\n");
+       
+        break; 
+    case 3:
+        system("cls");
+        printf("\t\t -----------------------------------------\n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::           Unlock customer          :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t -----------------------------------------\n");
+        
+        break;
+    case 4:
+        system("cls");
+        printf("\t\t -----------------------------------------\n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::    Show all customers accounts     :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t -----------------------------------------\n");
+       
+        break;    
+	case 5:
+        system("cls");
+        printf("\t\t -----------------------------------------\n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::    Display ATM Transactions Log    :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t -----------------------------------------\n");
+        
+        break;
+    case 0:
+        system("cls");
+	printf("\t\t --------------------------------------------\n");
+	printf("\t\t |          C ATM BANK LIMITED              | \n");  
+	printf("\t\t |     Thank you for banking with us        | \n");    
+	printf("\t\t |                                          | \n");
+	printf("\t\t |          0. Save&Exit                    | \n");
+	printf("\t\t --------------------------------------------\n\n");
+        write_custdb(header);
+        write_vaultdb(cash);
+        write_logdb(headerh);
+        system("exit");
+        break;
+    default:
+        printf("Choose only the options listed\n");
+    }
+}
 
+/*---------------------------------------------------------------------------*/
+/*----------------------------------CLIENT MENU -----------------------------*/
+void menu2(ulist header,hlist headerh,int login, int pin,atm cash)
+{
+    int op;
+    
+	printf("\t\t --------------------------------------------------\n");
+	printf("\t\t |            C ATM BANK LIMITED                  | \n");  
+	printf("\t\t |             Customer Banking                   | \n");
+	printf("\t\t |                                                | \n");
+	printf("\t\t |          1. Deposit Funds                      | \n");
+	printf("\t\t |                                                | \n");
+	printf("\t\t |          2. Withdraw Funds                     | \n");
+	printf("\t\t |                                                | \n");
+	printf("\t\t |          3. Transfer Funds                     | \n");
+	printf("\t\t |                                                | \n");
+	printf("\t\t |          4. Check Account Balance              | \n");
+	printf("\t\t |                                                | \n");
+	printf("\t\t |          5. Display Account Transaction Log    | \n");
+	printf("\t\t |                                                | \n");
+	printf("\t\t |          6. Change My Pin                      | \n");
+	printf("\t\t |                                                | \n");
+	printf("\t\t |                                                | \n");
+	printf("\t\t |          0. Save&Exit                          | \n");
+	printf("\t\t --------------------------------------------------\n\n");
+ 
+    INPUT
+    scanf("%d",&op);
+
+    switch (op)
+    {
+    case 1:    	
+        system("cls");
+        printf("\t\t ---------------------------------------- \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::          Deposit Funds             :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ---------------------------------------- \n");
+        
+        break;
+    case 2:
+        system("cls");
+        printf("\t\t ---------------------------------------- \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::         Withdraw Funds             :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ---------------------------------------- \n");
+        cust_withdraw(header,headerh,login,pin,cash);
+        break;
+    case 3:
+        system("cls");
+        printf("\t\t ---------------------------------------- \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::        Transfer Funds              :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ---------------------------------------- \n");
+       
+        break;
+    case 4:        
+        system("cls");
+        printf("\t\t ---------------------------------------- \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::      Check Account Balance         :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ---------------------------------------- \n");
+        
+        break;
+    case 5:
+    	system("cls");
+        printf("\t\t ---------------------------------------- \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::  Display Account Transaction Log   :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ---------------------------------------- \n");    	
+    
+        break;
+    case 6:
+        system("cls");
+        printf("\t\t ---------------------------------------- \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::         Change My PIN              :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ---------------------------------------- \n");
+      
+        break;
+    case 0:
+        system("cls");
+	printf("\t\t --------------------------------------------------\n");
+	printf("\t\t |            C ATM BANK LIMITED                  | \n");  
+	printf("\t\t |             Customer Banking                   | \n");
+	printf("\t\t |                                                | \n");
+	printf("\t\t |         Thank you for banking with us          | \n");    
+	printf("\t\t --------------------------------------------------\n");
+        printf("\n\n");
+        write_custdb(header);
+        write_logdb(headerh);
+        write_vaultdb(cash);
+        system("exit");
+        break;
+    default:
+        printf("Choose only the options listed\n");
+    }
+}
+ 
+ 
 //FILING
  
 //--------------------------------------------------------------------------------------------------//

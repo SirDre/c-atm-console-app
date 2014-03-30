@@ -892,6 +892,7 @@ void cust_withdraw(ulist header,hlist headerh, int login, int pin, atm cash)
 		
 		    if (l->sum>=value)
 		    {
+
 		        //increment value
 		        money++;  
 		        //substract new value from atm balance
@@ -899,23 +900,14 @@ void cust_withdraw(ulist header,hlist headerh, int login, int pin, atm cash)
 		        //substract fee from login account
 		        l->sum-=fee;
 		        //substract amount from login account
-			value-=total; 
-		      
-		        if (value!=0)
-		        {
-		            printf("ATM has insufficient notes!\n");
-		            option1(header,headerh,login,pin,cash);
-		        }else{
-		            l->sum-=total;
+		        l->sum-=total;
 		           
-		            printf("%s\n\n" ,__TIME__);
-		            printf("A fee of $%6.2f was deducted\n\n",fee);
-		            printf("You now have $%6.2f in your account\n",l->sum);
-		            create_log(headerh,9,login,total);
-		            option1(header,headerh,login,pin,cash);
-		        }
-		   
-			   
+		        printf("%s\n\n" ,__TIME__);
+		        printf("A fee of $%6.2f was deducted\n\n",fee);
+		        printf("You now have $%6.2f in your account\n",l->sum);
+		        create_log(headerh,9,login,total);
+		        option1(header,headerh,login,pin,cash);
+		       
 	             }else{
 		       printf("Insufficient Funds within A/c!\n");
 		       printf("You only have $%6.2f in your account\n\n",l->sum);

@@ -764,7 +764,28 @@ void print_custlog(ulist header,hlist headerh,int login,int pin,atm cash)
 void query_acct(ulist header,hlist headerh,int login, int pin,atm cash)
 {
     ulist l = header->next; 
+    
     int decision;
+      //Loops through out the values from the clients structure
+    while (l)
+    {
+        if (l->userid == login)
+        {
+        	
+        printf("\t\t%s\n" ,__TIME__);
+        printf("\t\t                                     \n");
+        printf("\t\t       Account No: %6d               \n", l->userid);
+        printf("\t\t       Pin: %4d\n                    \n",l->pin);
+        printf("\t\t       Balance: $%6.2f               \n",l->sum);
+        printf("\t\t                                     \n"); 
+        printf("\t\t -------------------------------------- \n");
+        
+        create_log(headerh,7,login,pin);
+        option1(header,headerh,login,pin,cash);
+
+        }
+        l=l->next;
+    }
  
 }
 //--------------------------------------------------------------------------------------------------//

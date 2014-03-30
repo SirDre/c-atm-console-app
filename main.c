@@ -9,26 +9,26 @@
 typedef struct bank *vault;
 typedef struct bank
 {
-    float money;
+	float money;
 }atm;
 
 // Grouping the structure for users 
 typedef struct user *ulist;
 typedef struct user
 {
-    int userid,pin;
+	int userid,pin;
 	int type,state;  // for type = 0 customer, 1 admin. for state = 0 active, 1 locked
-    float sum;
-   ulist *next;
+	float sum;
+	ulist *next;
 }users;
 
 // Grouping the structure for logs
 typedef struct log *hlist;
 typedef struct log
 {
-    int operation,opuserid;
+	int operation,opuserid;
 	float opactivity;
-    hlist *next;
+	hlist *next;
 }logs;
 
 
@@ -662,9 +662,27 @@ atm banknotes(float balance)
 // function to print all logs
 void print_log(ulist header,hlist headerh,int login,int pin,atm cash)
 {
-
-  hlist h = headerh->next;
-  
+    hlist h = headerh->next;
+    
+    printf("\n");
+    printf("%s\n\n" ,__TIME__);
+    printf("USERS\t\t\tID\t\tOPERATION\t\tACTION\n\n");
+    while (h)
+    {
+        //Each log data is assign a unique number as a reference to determine each log operation
+        if (h->operation == 1) printf("ADMIN\t\t\t%d\t\tUSERADD\t\t\t%6.2f\t\t\n",h->opuserid,h->opactivity);
+        else if (h->operation == 2) printf("ADMIN\t\t%d\t\tUSERDELETED\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
+        else if (h->operation == 3) printf("ADMIN\t\t%d\t\tSHOWLIST\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
+        else if (h->operation == 4) printf("ADMIN\t\t%d\t\tUSERCHECK\t\t%6.0f\t\t\n",h->opuserid,h->opactivity);
+        else if (h->operation == 5) printf("ADMIN\t\t%d\t\tUSERUNLOCK\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
+        else if (h->operation == 7) printf("CUSTOMER\t\t%d\t\tQUERY\t\t\n",h->opuserid);
+        else if (h->operation == 8) printf("CUSTOMER\t\t%d\t\tDEPOSIT\t\t\t%6.2f\t\t\n",h->opuserid,h->opactivity);
+        else if (h->operation == 9) printf("CUSTOMER\t\t%d\t\tWITHDRAW\t\t\t%6.2f\t\t\n",h->opuserid,h->opactivity);
+        else if (h->operation == 10) printf("CUSTOMER\t\t%d\t\tTRANSFER\t\t%6.2f\t\t\n",h->opuserid,h->opactivity);
+        else if (h->operation == 11) printf("CUSTOMER\t\t%d\t\tCHANGEPIN\t\t\t%6.0f\n",h->opuserid,h->opactivity);
+        else if (h->operation == 12) printf("CUSTOMER\t\t%d\t\tLOCKED\t\t\n",h->opuserid);
+        h=h->next;
+    }
   option2(header,headerh,login,pin,cash);
 }
 //--------------------------------------------------------------------------------------------------//
@@ -717,6 +735,27 @@ void print_clients(ulist header,hlist headerh,int login,int pin,atm cash)
 void print_custlog(ulist header,hlist headerh,int login,int pin,atm cash)
 {
     hlist h = headerh->next;
+    
+    printf("\n");
+    printf("%s\n\n" ,__TIME__);
+    printf("USER\t\t\tID\t\tOPERATION\t\tACTION\n\n");
+     //Loops through out the values from the clients structure
+    while (h)
+    {
+          
+        if (h->opuserid == login)  {
+        
+	        if (h->operation == 7) printf("CUSTOMER\t\t%d\t\tQUERY\t\t\n\n",h->opuserid);
+	        else if (h->operation == 8) printf("CUSTOMER\t\t%d\t\tDEPOSIT\t\t\t$%6.2f\t\t\n",h->opuserid,h->opactivity);
+	        else if (h->operation == 9) printf("CUSTOMER\t\t%d\t\tWITHDRAW\t\t$%6.2f\t\t\n",h->opuserid,h->opactivity);
+	        else if (h->operation == 10) printf("CUSTOMER\t\t%d\t\tTRANSFER\t\t$%6.2f\t\t\n",h->opuserid,h->opactivity);
+	        else if (h->operation == 11) printf("CUSTOMER\t\t%d\t\tCHANGEPIN\t\t\t%6.0f\n",h->opuserid,h->opactivity);
+	        else if (h->operation == 12) printf("CUSTOMER\t\t%d\t\tLOCKED\t\t\n",h->opuserid);
+	        
+    	}
+        h=h->next;
+    }
+    option1(header,headerh,login,pin,cash);
  
      
 }

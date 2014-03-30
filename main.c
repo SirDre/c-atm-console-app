@@ -539,6 +539,38 @@ void menu2(ulist header,hlist headerh,int login, int pin,atm cash)
 }
  
  
+ // A dynamic memory allocation of the client ulist header 
+ulist client_hlist (void)
+{
+    ulist header;
+    header = (ulist) malloc (sizeof (users));
+    if (header != NULL)
+    {
+        header->next = NULL;
+    }
+    return header;
+}
+// A dynamic memory allocation of the log list header 
+hlist history_hlist(void)
+{
+    hlist headerh;
+    headerh = (hlist) malloc (sizeof(logs));
+    if (headerh != NULL)
+    {
+        headerh->next = NULL;
+    }
+    return headerh;
+}
+// A dynamic memory allocation of the bank balance list header 
+atm banknotes(float balance)
+{
+    atm cash;
+    cash.money = balance;
+
+    return cash;
+}
+
+ 
 //FILING
  
 //--------------------------------------------------------------------------------------------------//

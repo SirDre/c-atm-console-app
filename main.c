@@ -40,6 +40,28 @@ hlist history_hlist(void);
 atm banknotes(float balance);
 atm read_vaultdb();
 
+//Display functions
+void option1(ulist header,hlist headerh,int login,int pin,atm cash);
+void option2(ulist header,hlist headerh,int login,int pin,atm cash);
+void menu(ulist header,hlist headerh,int login,int pin,atm cash);
+void menu2(ulist header,hlist headerh,int login, int pin,atm cash);
+
+//Admin functions 
+void create_client(ulist header,hlist headerh,int login,int pin,atm cash);
+void create_user(ulist header, int nuserid, int npin, float namount, int ntype, int nstate);
+void print_log(ulist header,hlist headerh,int login,int pin,atm cash);
+void delete_client(ulist header,hlist headerh,int login, int pin,atm cash);
+void print_clients(ulist header,hlist headerh,int login,int pin,atm cash);
+int unlock_client(ulist header,hlist headerh,int login, int pin,atm cash);  
+
+//Customer functions 
+void query_acct(ulist header,hlist headerh,int login, int pin,atm cash);
+void cust_deposit(ulist header, hlist headerh,int login, int pin, atm cash);
+void cust_transfer(ulist header,hlist headerh,int login, int pin,atm cash);
+void cust_withdraw(ulist header,hlist headerh, int login, int pin, atm cash);
+void print_custlog(ulist header,hlist headerh,int login,int pin,atm cash);
+int change_client_pin(ulist header,hlist headerh,int login,int pin,atm cash); 
+
 //Read&Write functions
 void write_custdb(ulist header);
 void read_custdb(ulist header);
@@ -393,7 +415,7 @@ void menu(ulist header,hlist headerh,int login,int pin,atm cash)
         printf("\t\t |        Create Customer Account           | \n");
         printf("\t\t |                                          | \n");
         printf("\t\t --------------------------------------------\n");
-        
+        create_client(header,headerh,login,pin,cash);
         break;
     case 2:
         system("cls");
@@ -402,7 +424,7 @@ void menu(ulist header,hlist headerh,int login,int pin,atm cash)
         printf("\t\t ::          Delete customer           :: \n");
         printf("\t\t ::                                    :: \n");
         printf("\t\t -----------------------------------------\n");
-       
+        delete_client(header,headerh,login,pin,cash);
         break; 
     case 3:
         system("cls");
@@ -411,7 +433,7 @@ void menu(ulist header,hlist headerh,int login,int pin,atm cash)
         printf("\t\t ::           Unlock customer          :: \n");
         printf("\t\t ::                                    :: \n");
         printf("\t\t -----------------------------------------\n");
-        
+        unlock_client(header,headerh,login,pin,cash);
         break;
     case 4:
         system("cls");
@@ -420,7 +442,7 @@ void menu(ulist header,hlist headerh,int login,int pin,atm cash)
         printf("\t\t ::    Show all customers accounts     :: \n");
         printf("\t\t ::                                    :: \n");
         printf("\t\t -----------------------------------------\n");
-       
+        print_clients(header,headerh,login,pin,cash); 
         break;    
 	case 5:
         system("cls");
@@ -429,7 +451,7 @@ void menu(ulist header,hlist headerh,int login,int pin,atm cash)
         printf("\t\t ::    Display ATM Transactions Log    :: \n");
         printf("\t\t ::                                    :: \n");
         printf("\t\t -----------------------------------------\n");
-        
+        print_log(header,headerh,login,pin,cash); 
         break;
     case 0:
         system("cls");
@@ -487,7 +509,7 @@ void menu2(ulist header,hlist headerh,int login, int pin,atm cash)
         printf("\t\t ::          Deposit Funds             :: \n");
         printf("\t\t ::                                    :: \n");
         printf("\t\t ---------------------------------------- \n");
-        
+        cust_deposit(header,headerh,login,pin,cash);
         break;
     case 2:
         system("cls");
@@ -505,7 +527,7 @@ void menu2(ulist header,hlist headerh,int login, int pin,atm cash)
         printf("\t\t ::        Transfer Funds              :: \n");
         printf("\t\t ::                                    :: \n");
         printf("\t\t ---------------------------------------- \n");
-       
+        cust_transfer(header,headerh,login,pin,cash);
         break;
     case 4:        
         system("cls");
@@ -514,7 +536,7 @@ void menu2(ulist header,hlist headerh,int login, int pin,atm cash)
         printf("\t\t ::      Check Account Balance         :: \n");
         printf("\t\t ::                                    :: \n");
         printf("\t\t ---------------------------------------- \n");
-        
+        query_acct(header,headerh,login,pin,cash);
         break;
     case 5:
     	system("cls");
@@ -523,7 +545,7 @@ void menu2(ulist header,hlist headerh,int login, int pin,atm cash)
         printf("\t\t ::  Display Account Transaction Log   :: \n");
         printf("\t\t ::                                    :: \n");
         printf("\t\t ---------------------------------------- \n");    	
-    
+        print_custlog(header,headerh,login,pin,cash); 
         break;
     case 6:
         system("cls");
@@ -532,7 +554,7 @@ void menu2(ulist header,hlist headerh,int login, int pin,atm cash)
         printf("\t\t ::         Change My PIN              :: \n");
         printf("\t\t ::                                    :: \n");
         printf("\t\t ---------------------------------------- \n");
-      
+        change_client_pin(header,headerh,login,pin,cash);
         break;
     case 0:
         system("cls");
@@ -553,6 +575,53 @@ void menu2(ulist header,hlist headerh,int login, int pin,atm cash)
     }
 }
  
+ 
+//client option menu  
+void option1(ulist header,hlist headerh,int login,int pin,atm cash)
+{
+    int decision;
+
+    printf("\n\t0 - Back to menu                  1 - Exit\t");
+    INPUT
+    scanf("%d",&decision);
+
+    if (decision == 0)
+    {
+        system("cls");
+        menu2(header,headerh,login,pin,cash);
+    }
+    else if (decision == 1)
+    {
+        system("exit");
+        write_custdb(header);
+        write_vaultdb(cash);
+        write_logdb(headerh);
+        system("cls");
+    }
+}
+//admin option menu
+void option2(ulist header,hlist headerh,int login,int pin,atm cash)
+{
+    int decision;
+
+    printf("\n\t0 - Back to menu                     1 - Exit\t");
+    INPUT
+    scanf("%d",&decision);
+
+    if (decision == 0)
+    {
+        system("cls");
+        menu(header,headerh,login,pin,cash);
+    }
+    else if (decision == 1)
+    {
+        system("exit");
+        write_custdb(header);
+        write_logdb(headerh);
+        write_vaultdb(cash);
+        system("cls");
+    }
+}
  
  // A dynamic memory allocation of the client ulist header 
 ulist client_hlist (void)
@@ -585,6 +654,137 @@ atm banknotes(float balance)
     return cash;
 }
 
+
+
+//ADMIN FUNCTIONS
+
+//--------------------------------------------------------------------------------------------------//
+// function to print all logs
+void print_log(ulist header,hlist headerh,int login,int pin,atm cash)
+{
+
+  hlist h = headerh->next;
+  
+  option2(header,headerh,login,pin,cash);
+}
+//--------------------------------------------------------------------------------------------------//
+// function to create new users
+void create_client(ulist header,hlist headerh,int login,int pin,atm cash)
+{
+    ulist newdata;
+  
+    option2(header,headerh,login,pin,cash);
+}
+void create_user(ulist header, int nuserid, int npin, float namount, int ntype, int nstate)
+{
+    ulist newdata;
+
+
+}
+//--------------------------------------------------------------------------------------------------//
+// function to delete new users
+void delete_client (ulist header,hlist headerh,int login, int pin,atm cash)
+{
+    ulist dlist;
+  
+    option2(header,headerh,login,pin,cash);
+} 
+//--------------------------------------------------------------------------------------------------//
+// function to unlock users
+int unlock_client(ulist header,hlist headerh,int login, int pin,atm cash) 
+{
+    ulist l = header->next; 
+
+    return 0;
+}
+//--------------------------------------------------------------------------------------------------//
+// function to unlock users
+void print_clients(ulist header,hlist headerh,int login,int pin,atm cash)
+{
+    ulist l = header->next;
+  
+    option2(header,headerh,login,pin,cash);
+}
+ 
+
+
+
+//CUSTOMERS FUNCTIONS
+
+
+//--------------------------------------------------------------------------------------------------//
+//function view each account login account no. log data
+void print_custlog(ulist header,hlist headerh,int login,int pin,atm cash)
+{
+    hlist h = headerh->next;
+ 
+     
+}
+//--------------------------------------------------------------------------------------------------//
+// function to check each login account data
+void query_acct(ulist header,hlist headerh,int login, int pin,atm cash)
+{
+    ulist l = header->next; 
+    int decision;
+ 
+}
+//--------------------------------------------------------------------------------------------------//
+//function to change each login account pin data
+int change_client_pin(ulist header,hlist headerh,int login,int pin,atm cash) // return 1 if changed, 0 otherwise
+{
+    ulist l = header->next;
+    int newpin;
+    int oldpin;
+    int decision;
+    int i=0;
+ 
+     //Save to file
+ 
+    write_vaultdb(cash);
+    write_logdb(headerh); 
+}
+//--------------------------------------------------------------------------------------------------//
+//function to deposit/add new value to each login account balance
+void cust_deposit(ulist header, hlist headerh,int login, int pin, atm cash)
+{
+    ulist l = header->next;
+    float total, value = 0;
+    float fee = 0;
+ 
+    //Save to file
+ 
+    write_vaultdb(cash);
+    write_logdb(headerh); 
+}
+//--------------------------------------------------------------------------------------------------///
+//function to pay school fee value from a login account balance
+void cust_transfer(ulist header,hlist headerh,int login, int pin,atm cash)
+{
+    ulist l = header->next;
+    int uid = 0;
+    float value;
+    float fee = 0.09;
+
+    
+    //Save to file
+    write_vaultdb(cash);
+    write_logdb(headerh);    
+}
+//--------------------------------------------------------------------------------------------------//
+//function to withdraw value from a login account balance
+void cust_withdraw(ulist header,hlist headerh, int login, int pin, atm cash)
+{
+    ulist l = header->next; 
+    float value = 0;
+    float money = 0;
+    float fee = 0.02;
+   
+   
+   
+    write_vaultdb(cash);
+    write_logdb(headerh);
+}
+ 
  
 //FILING
  

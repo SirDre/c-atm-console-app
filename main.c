@@ -863,14 +863,76 @@ void cust_transfer(ulist header,hlist headerh,int login, int pin,atm cash)
 void cust_withdraw(ulist header,hlist headerh, int login, int pin, atm cash)
 {
     ulist l = header->next; 
+    
     float value = 0;
     float money = 0;
     float fee = 0.02;
-   
-   
-   
-    write_vaultdb(cash);
-    write_logdb(headerh);
+    float max = 30000;
+    float min = 10;
+    //Withdraw Restrictions
+    do
+    {
+        printf("Indicate the amount you wish to withdraw\n");
+        INPUT 
+        scanf("%f",&value);
+        if (value>max) printf("The maximum withdrawal is $%6.2f\n\n",max);
+        else if (value<min) printf("The minimum withdrawal is $%6.2f\n\n",min); 
+        
+    }while (value>max);
+    //Set values
+    float total = value;
+    
+    //Loops through out the values from the clients structure
+    while (l)
+    {
+        if (l->userid == login)
+        {
+        	//Check ATM Vault
+		if(cash.money>=value){
+		
+		    if (l->sum>=value)
+		    {
+		        //increment value
+		        money++;  
+		        //substract new value from atm balance
+		        cash.money-=value;
+		        //substract fee from login account
+		        l->sum-=fee;
+		        //substract amount from login account
+			value-=total; 
+		      
+		        if (value!=0)
+		        {
+		            printf("ATM has insufficient notes!\n");
+		            option1(header,headerh,login,pin,cash);
+		        }else{
+		            l->sum-=total;
+		           
+		            printf("%s\n\n" ,__TIME__);
+		            printf("A fee of $%6.2f was deducted\n\n",fee);
+		            printf("You now have $%6.2f in your account\n",l->sum);
+		            create_log(headerh,9,login,total);
+		            option1(header,headerh,login,pin,cash);
+		        }
+		   
+			   
+	             }else{
+		       printf("Insufficient Funds within A/c!\n");
+		       printf("You only have $%6.2f in your account\n\n",l->sum);
+		       option1(header,headerh,login,pin,cash);	
+		     }
+		
+		}else{
+		printf("Insufficient Funds within ATM at this time!\n");
+		printf("Only $%6.2f available for withdrawal\n\n",cash.money);
+		option1(header,headerh,login,pin,cash);	
+            }
+        }
+        l=l->next;
+    }
+    
+write_logdb(headerh);
+write_vaultdb(cash);
 }
  
  

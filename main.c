@@ -33,7 +33,81 @@ typedef struct log
 
 
 
+//init Program
+int main(int argc, int *argv[])
+{
+	
+    ulist header = client_hlist();
+    ulist l = header->next;
+    hlist headerh = history_hlist();
 
+    int loginid;
+    int pin,attempts = 0;
+
+    atm cash = read_vaultdb();
+    read_custdb(header);
+    read_logdb(headerh);
+
+    int nuserid,npin,ntype,conf,nstate, i=0, j=0;
+    float namount;
+    ulist newdata;
+ 
+    int op;
+  
+	printf("\t\t -------------------------------------------- \n");    
+	printf("\t\t |         C ATM BANK LIMITED               | \n");
+	printf("\t\t |           ATM Main Menu                  | \n");
+	printf("\t\t |                                          | \n"); 
+	printf("\t\t |   WELCOME! PLEASE SELECT YOUR OPTION!    | \n");
+	printf("\t\t |                                          | \n");      
+	printf("\t\t |    1. Initialize System                  | \n");
+	printf("\t\t |                                          | \n");
+	printf("\t\t |    2. Display ATM Transactions Log       | \n");
+	printf("\t\t |                                          | \n");    
+	printf("\t\t |    3. User Transactions Menu             | \n");  
+	printf("\t\t |                                          | \n");
+	printf("\t\t |    4. Exit                               | \n");
+	printf("\t\t --------------------------------------------\n\n");
+  
+    INPUT
+    scanf("%d",&op);
+  
+    switch (op)
+    {
+    case 1:
+	system("cls");
+	printf("\t\t --------------------------------------------\n");
+	printf("\t\t |    1. Initialize System                  | \n");  
+	printf("\t\t |                                          | \n");
+	printf("\t\t |                                          | \n");
+	printf("\t\t --------------------------------------------\n\n");
+ 
+  
+    
+    break;
+    case 2:
+
+	system("cls");  
+	printf("\t\t --------------------------------------------\n");
+	printf("\t\t |    2. Display ATM Transactions Log       | \n");  
+	printf("\t\t |                                          | \n");
+	printf("\t\t |                                          | \n");
+	printf("\t\t --------------------------------------------\n\n");
+   
+
+        break;
+
+    case 3:
+        write_custdb(header);
+        write_vaultdb(cash);
+        write_logdb(headerh);
+        system("exit");
+        break;
+    default:
+        printf("Choose only the options listed\n");
+    }
+  
+}
 
 
 

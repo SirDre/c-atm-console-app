@@ -807,14 +807,42 @@ int change_client_pin(ulist header,hlist headerh,int login,int pin,atm cash) // 
 //function to deposit/add new value to each login account balance
 void cust_deposit(ulist header, hlist headerh,int login, int pin, atm cash)
 {
-    ulist l = header->next;
+ //gets structures ulist values and assign a variable l
+    ulist d = header->next;
+    
     float total, value = 0;
     float fee = 0;
- 
+   
+    
+    printf("How much do you like to deposit?\n");
+    INPUT 
+    scanf("%f",&value);
+    
+  //Loops through out the values from the clients structure     
+    while (d)
+    {   //checks if user is true
+        if (d->userid == login)
+        {
+            total = value;
+            //add new value to atm balance
+	    cash.money+=value;
+            //substract fee from login account
+            d->sum-=fee;
+           	//add new value to login account balance
+            d->sum+=total;
+       
+	    printf("A fee of $%6.2f was deducted\n\n",fee);
+            printf("Your balance is now $%6.2f\n",d->sum);        
+
+        }
+        //Add all values to variable l and save it to the structure ulist
+       d=d->next;
+    }
     //Save to file
- 
+    create_log(headerh,8,login,total);
     write_vaultdb(cash);
-    write_logdb(headerh); 
+    write_logdb(headerh);
+    option1(header,headerh,login,pin,cash);
 }
 //--------------------------------------------------------------------------------------------------///
 //function to pay school fee value from a login account balance

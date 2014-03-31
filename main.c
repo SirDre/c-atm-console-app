@@ -407,6 +407,8 @@ void menu(ulist header,hlist headerh,int login,int pin,atm cash)
     printf("\t\t |                                          | \n");
     printf("\t\t |          5. Display ATM Transactions Log | \n");
     printf("\t\t |                                          | \n");
+    printf("\t\t |          6. Show ATM Vault Balance       | \n");
+    printf("\t\t |                                          | \n");
     printf("\t\t |          0. Save&Exit                    | \n");
     printf("\t\t --------------------------------------------\n\n");
  
@@ -451,7 +453,7 @@ void menu(ulist header,hlist headerh,int login,int pin,atm cash)
         printf("\t\t -----------------------------------------\n");
         print_clients(header,headerh,login,pin,cash); 
         break;    
-	case 5:
+    case 5:
         system("cls");
         printf("\t\t -----------------------------------------\n");
         printf("\t\t ::                                    :: \n");
@@ -459,6 +461,15 @@ void menu(ulist header,hlist headerh,int login,int pin,atm cash)
         printf("\t\t ::                                    :: \n");
         printf("\t\t -----------------------------------------\n");
         print_log(header,headerh,login,pin,cash); 
+        break;
+    case 6:
+        system("cls");
+        printf("\t\t -----------------------------------------\n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t ::    Show ATM Vault Balance          :: \n");
+        printf("\t\t ::                                    :: \n");
+        printf("\t\t -----------------------------------------\n");
+        print_vault(header,headerh,login,pin,cash); 
         break;
     case 0:
         system("cls");
@@ -477,7 +488,6 @@ void menu(ulist header,hlist headerh,int login,int pin,atm cash)
         printf("Choose only the options listed\n");
     }
 }
-
 /*---------------------------------------------------------------------------*/
 /*----------------------------------CLIENT MENU -----------------------------*/
 void menu2(ulist header,hlist headerh,int login, int pin,atm cash)
@@ -706,7 +716,8 @@ void print_log(ulist header,hlist headerh,int login,int pin,atm cash)
         else if (h->operation == 3) printf("ADMIN\t\t%d\t\tSHOWLIST\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
         else if (h->operation == 4) printf("ADMIN\t\t%d\t\tUSERCHECK\t\t%6.0f\t\t\n",h->opuserid,h->opactivity);
         else if (h->operation == 5) printf("ADMIN\t\t%d\t\tUSERUNLOCK\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
-        else if (h->operation == 7) printf("CUSTOMER\t\t%d\t\tQUERY\t\t\n",h->opuserid);
+        else if (h->operation == 6) printf("ADMIN\t\t%d\t\tVAULT\t\t$%6.2f\t\t\n",h->opuserid,h->opactivity);
+	else if (h->operation == 7) printf("CUSTOMER\t\t%d\t\tQUERY\t\t\n",h->opuserid);
         else if (h->operation == 8) printf("CUSTOMER\t\t%d\t\tDEPOSIT\t\t\t%6.2f\t\t\n",h->opuserid,h->opactivity);
         else if (h->operation == 9) printf("CUSTOMER\t\t%d\t\tWITHDRAW\t\t\t%6.2f\t\t\n",h->opuserid,h->opactivity);
         else if (h->operation == 10) printf("CUSTOMER\t\t%d\t\tTRANSFER\t\t%6.2f\t\t\n",h->opuserid,h->opactivity);
@@ -754,7 +765,20 @@ void print_clients(ulist header,hlist headerh,int login,int pin,atm cash)
   
     option2(header,headerh,login,pin,cash);
 }
+//--------------------------------------------------------------------------------------------------//
+// function to print ATM balance users
+void print_vault(ulist header,hlist headerh,int login,int pin,atm cash)
+{
+    ulist l = header->next;
+    float value = cash.money;
  
+    printf("\n\t\tBalance\t\t");
+    printf("\t\t$%6.2f\n",value);
+    printf("\t\t-----------------------------------------\n\n");
+    
+    create_log(headerh,6,login,0);    
+    option2(header,headerh,login,pin,cash);
+}
 
 
 
@@ -824,15 +848,49 @@ void query_acct(ulist header,hlist headerh,int login, int pin,atm cash)
 int change_client_pin(ulist header,hlist headerh,int login,int pin,atm cash) // return 1 if changed, 0 otherwise
 {
     ulist l = header->next;
+  
     int newpin;
     int oldpin;
     int decision;
     int i=0;
  
-     //Save to file
+    printf("Enter the current PIN\n");
+    INPUT
+    scanf("%d",&newpin);
  
-    write_vaultdb(cash);
-    write_logdb(headerh); 
+    //checks if PIN is true
+    if (pin==newpin)
+    {    //Loops through out the values from the clients structure
+        while (l)
+        { //checks if user is true
+            if (l->userid == login)
+            { 
+                printf("Enter the new PIN ( 4 digits )\n");
+                INPUT
+                scanf("%d",&oldpin); 
+              /*  for(i=0;i<=3;i++){
+                	oldpin = getch();
+                	printf ("*");
+                 	l->pin = oldpin;
+                }*/
+    
+    			l->pin = oldpin;
+    			
+                printf("%s\n\n" ,__TIME__);
+                printf("PIN successfully changed\n");
+                create_log(headerh,11,login,newpin);
+                write_custdb(header);
+                
+				option1(header,headerh,login,oldpin,cash);
+            }
+            l=l->next;
+        }
+    }
+    else
+    {
+        printf("Invalid PIN\n");
+        option1(header,headerh,login,pin,cash);
+    }
 }
 //--------------------------------------------------------------------------------------------------//
 //function to deposit/add new value to each login account balance
@@ -880,14 +938,76 @@ void cust_deposit(ulist header, hlist headerh,int login, int pin, atm cash)
 void cust_transfer(ulist header,hlist headerh,int login, int pin,atm cash)
 {
     ulist l = header->next;
+    ulist j = header->next;
+
     int uid = 0;
     float value;
-    float fee = 0.09;
+    float fee = 0.09;   
+//declare a goto starter = if account number is yours start here    
+start:
+    printf("Enter the Account No to transfer funds\n");
+    INPUT
+    scanf("%d",&uid);
 
+    //checks if user is not transfering to his/her own account
+    if ((search_client(header,uid)==1) && (login != uid))  
+    {   
+         //Loops through out the values from the clients structure
+        while (l)
+        {   //checks if user is true
+            if (l->userid == login)
+            {
+                printf("Indicate the amount you wish to transfer\n");
+                INPUT
+                scanf("%f",&value);
+                if (value<=(l->sum))
+                {
+                   //substract fee value from login account 
+                    l->sum-=fee;
+                   //add fee value to atm balance		
+		    cash.money+=fee;
+		   //substract transfer value from login account 
+                    l->sum-=value;
+                     //Loops tru the values from the clients structure
+                    while (j)
+                    { //checks if user is true
+                        if (j->userid == uid)
+                        { 
+                            j->sum+=value;
+                            
+                            printf("%s\n\n" ,__TIME__);
+                            printf("A fee of $%6.2f was deducted\n\n",fee);
+                            printf("Transferred $%6.2f \nFrom the Account no. %d to Account no. %d\n\n",value,l->userid,j->userid);       
+			    printf("Your Current Balance is $%6.2f\n",l->sum);                     
+                            create_log(headerh,10,login,uid);
+                        }
+                        //Add all values to variable l and save it to the structure ulist
+                        j=j->next;
+                    }
+               
+		}else{
+                    printf("There is not enough funds available in your account\n");
+                    printf("You only have $%6.2f in your account\n",l->sum);
+                }
+                  
+            }
+            //Add all values to variable l and save it to the structure ulist
+            l=l->next;
+        }
+    }
+    else if (login == uid)
+    {
+        printf("Sorry, not allowed. Try another account no. This is yours\n\n");
+        goto start;
+    
+	}else
+        printf("Account no %d do not exist in our records \n",uid);
+    LINE
     
     //Save to file
     write_vaultdb(cash);
-    write_logdb(headerh);    
+    write_logdb(headerh);   
+    option1(header,headerh,login,pin,cash); 
 }
 //--------------------------------------------------------------------------------------------------//
 //function to withdraw value from a login account balance
@@ -924,14 +1044,14 @@ void cust_withdraw(ulist header,hlist headerh, int login, int pin, atm cash)
 		    if (l->sum>=value)
 		    {
 
-		        //increment value
-		        money++;  
-		        //substract new value from atm balance
-		        cash.money-=value;
-		        //substract fee from login account
-		        l->sum-=fee;
-		        //substract amount from login account
-		        l->sum-=total;
+	                money++;  
+	                l->sum-=fee;
+			//add fee value to atm balance		
+			cash.money+=fee;	 
+			//substract new value from atm balance
+			cash.money-=value;    
+			//substract new value from login balance             
+			l->sum-=total;
 		           
 		        printf("%s\n\n" ,__TIME__);
 		        printf("A fee of $%6.2f was deducted\n\n",fee);

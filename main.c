@@ -961,7 +961,7 @@ void query_acct(ulist header,hlist headerh,int login, int pin,atm cash)
         printf("\t\t                                     \n"); 
         printf("\t\t -------------------------------------- \n");
         
-        create_log(headerh,7,login,pin);
+        create_log(headerh,7,login,l->sum);
         option1(header,headerh,login,pin,cash);
 
         }

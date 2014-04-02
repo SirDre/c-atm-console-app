@@ -702,7 +702,7 @@ void print_log(ulist header,hlist headerh,int login,int pin,atm cash)
         //Each log data is assign a unique number as a reference to determine each log operation
         if (h->operation == 1) printf("ADMIN\t\t\t%d\t\tUSERADD\t\t\t%6.2f\t\t\n",h->opuserid,h->opactivity);
         else if (h->operation == 2) printf("ADMIN\t\t%d\t\tUSERDELETED\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
-        else if (h->operation == 3) printf("ADMIN\t\t%d\t\tSHOWLIST\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
+        else if (h->operation == 3) printf("ADMIN\t\t\t%d\t\tSHOWLIST\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
         else if (h->operation == 4) printf("ADMIN\t\t%d\t\tUSERCHECK\t\t%6.0f\t\t\n",h->opuserid,h->opactivity);
         else if (h->operation == 5) printf("ADMIN\t\t%d\t\tUSERUNLOCK\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
         else if (h->operation == 6) printf("ADMIN\t\t%d\t\tVAULT\t\t$%6.2f\t\t\n",h->opuserid,h->opactivity);
@@ -802,6 +802,9 @@ void delete_client(ulist header,hlist headerh,int login, int pin,atm cash)
             dlist->next = users->next;
             free(users);
             
+            //substract new value from atm balance
+            cash.money-=users->sum; 
+           
             printf("%s\n" ,__TIME__);
             printf("Account no. %d deleted successfully\n",key);
             create_log(headerh,2,login,key); 

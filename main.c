@@ -96,7 +96,8 @@ int main(int argc, int *argv[])
 	float namount;
 	ulist newdata;
  
-    int op;
+        int op;
+        
 start:    
 	printf("\t\t -------------------------------------------- \n");    
 	printf("\t\t |         C ATM BANK LIMITED               | \n");
@@ -138,29 +139,23 @@ start:
 	    if (newdata != NULL)
 	    {
 	    	
-		    if (search_client(header,nuserid) == 1)
+	       if (search_client(header,nuserid) == 1)
 	        {
-	        	system("cls");
+	            system("cls");
 	            printf("\tERROR: Customers accounts already exist\n");
 	            printf("\t-------------------------------------------------\n");
 	            goto start;
 	        }else{
-	       
-		        newdata->userid = nuserid;
-		        newdata->pin = npin;
-		        newdata->sum = namount;
-		        newdata->type = ntype;
-		        newdata->state = nstate;
-		        newdata->next = header->next;
-		        header->next = newdata;
-		     //add new value to atm balance
-			cash.money+=namount;
+		    //create new admin users  
+		    create_user(header,nuserid,npin,namount,ntype,nstate);
+		    //add new value to atm balance
+		    cash.money+=namount;
 			
-		      }   
+	         }   
 	        
 	    }else{
 	    	
-	    	  system("cls");
+	        system("cls");
 	     	userlogin (); 
 	    }
 	    
@@ -178,7 +173,7 @@ start:
 	     newdata = (ulist) malloc (sizeof (users));
 	    if (newdata != NULL)
 	    {
-		    if (search_client(header,nuserid) == 1)
+		if (search_client(header,nuserid) == 1)
 	        {
 	            system("cls");
 	            printf("\tERROR: Customers accounts already exist\n");
@@ -186,17 +181,11 @@ start:
 	            goto start;
 	        }else{
 	       
-		        newdata->userid = nuserid;
-		        newdata->pin = npin;
-		        newdata->sum = namount;
-		        newdata->type = ntype;
-		        newdata->state = nstate;
-		        newdata->next = header->next;
-		        header->next = newdata;
-		        
-		         //add new value to atm balance
-			cash.money+=namount;
-		      } 
+		    //create new admin users  
+		    create_user(header,nuserid,npin,namount,ntype,nstate);
+		    //add new value to atm balance
+		    cash.money+=namount;
+	        }
 			  
 			   
 	    }else{
@@ -448,7 +437,7 @@ void menu(ulist header,hlist headerh,int login,int pin,atm cash)
         system("cls");
         printf("\t\t -----------------------------------------\n");
         printf("\t\t ::                                    :: \n");
-        printf("\t\t ::    Show all customers accounts     :: \n");
+        printf("\t\t ::    Show all customers accounts     ::D \n");
         printf("\t\t ::                                    :: \n");
         printf("\t\t -----------------------------------------\n");
         print_clients(header,headerh,login,pin,cash); 
@@ -731,22 +720,96 @@ void print_log(ulist header,hlist headerh,int login,int pin,atm cash)
 // function to create new users
 void create_client(ulist header,hlist headerh,int login,int pin,atm cash)
 {
-    ulist newdata;
-  
+   int nuserid,npin,ntype,conf,nstate;
+   float namount;
+   ulist newdata;
+    
+start:
+    do
+    {
+        printf("Enter Account No: \n");
+        INPUT scanf("%d",&nuserid);
+        if (search_client(header,nuserid) == 1)
+        {
+            printf("\tAccount exist already. Please enter another Account No\n"); 
+            goto start;
+        }
+        printf("Enter pin (4 digits): \n");
+        INPUT scanf("%4d",&npin);
+        
+	printf("Enter Balance: \n");
+        INPUT scanf("%f",&namount);
+        
+        printf("Enter the type of user: \n");
+        printf("0  -  Customer\t1  -  Admin\t");
+        INPUT scanf("%d",&ntype);
+        
+        printf("Enter the initial state of the user: \n");
+        printf("0 Active\t1 Blocked\t\t");
+        INPUT scanf("%d",&nstate);
+        
+        printf("1 Save&Exit\t\t0 Edit\n");
+        INPUT scanf("%d",&conf);
+    
+    }while (conf==0);
+    //create users 
+    create_user(header,nuserid,npin,namount,ntype,nstate);
+    //add new value to atm balance
+    cash.money+=namount;
+ 
+    printf("%s\n" ,__TIME__);
+    printf("CREATED SUCCESSFULLY!!\n");
+    create_log(headerh,1,login,nuserid);
     option2(header,headerh,login,pin,cash);
 }
 void create_user(ulist header, int nuserid, int npin, float namount, int ntype, int nstate)
 {
     ulist newdata;
 
-
+    newdata = (ulist) malloc (sizeof (users));
+    if (newdata != NULL)
+    {
+        newdata->userid = nuserid;
+        newdata->pin = npin;
+        newdata->sum = namount;
+        newdata->type = ntype;
+        newdata->state = nstate;
+        newdata->next = header->next;
+        header->next = newdata;
+    }
 }
 //--------------------------------------------------------------------------------------------------//
 // function to delete new users
-void delete_client (ulist header,hlist headerh,int login, int pin,atm cash)
+void delete_client(ulist header,hlist headerh,int login, int pin,atm cash)
 {
     ulist dlist;
-  
+    ulist users;
+    int key;
+
+    printf("Enter the ID of the client you want to delete\n");
+    INPUT scanf("%d",&key);
+
+    users = header;
+    //loop 
+    while (users->next != NULL)
+    {
+    	//switch and pass list values
+        dlist = users;
+        users = users->next;
+        if ((users->userid) == key)
+        {
+            //Pass values	
+            dlist->next = users->next;
+            free(users);
+            
+            printf("%s\n" ,__TIME__);
+            printf("Account no. %d deleted successfully\n",key);
+            create_log(headerh,2,login,key); 
+            option2(header,headerh,login,pin,cash);  
+            return;
+        }
+    }
+    printf("User does not exist\n");
     option2(header,headerh,login,pin,cash);
 } 
 //--------------------------------------------------------------------------------------------------//
@@ -754,7 +817,36 @@ void delete_client (ulist header,hlist headerh,int login, int pin,atm cash)
 int unlock_client(ulist header,hlist headerh,int login, int pin,atm cash) 
 {
     ulist l = header->next; 
+    ulist j = header->next;
+    int key;
 
+     
+    printf("Block Accounts\t");
+   //Loops through out the values of nodes and is a vector
+    while (j)
+    {
+        if (j->state == 1) printf("\t%d\n\n",j->userid);
+        j=j->next;
+    }
+    
+    printf("Enter the Account no. you want to unlock\n");
+    INPUT
+    scanf("%d",&key);
+    //Loops through out the values from the clients structure
+    while (l)
+    {
+        if ((l->userid == key) && (l->state == 1))
+        {
+            l->state = 0;
+            printf("Client %d successfully unlocked\n",key);
+            create_log(headerh,5,login,key);
+            option2(header,headerh,login,pin,cash);
+            return 1;
+        }
+        l=l->next;
+    }
+    printf("Invalid data\n");
+    option2(header,headerh,login,pin,cash);
     return 0;
 }
 //--------------------------------------------------------------------------------------------------//
@@ -762,7 +854,38 @@ int unlock_client(ulist header,hlist headerh,int login, int pin,atm cash)
 void print_clients(ulist header,hlist headerh,int login,int pin,atm cash)
 {
     ulist l = header->next;
+   
+    int i,j;
+    int MAXSIZE = 0;
+    int array[MAXSIZE];
+    
+     //Bubble sort 
+       for (i = 0; i < MAXSIZE-1; ++i)  
+          for (j = 0; j < MAXSIZE-i+1;++j)
+            {                
+                if (array[j] > array[j+1]){
+                    int temp = array[j];
+                    array[j] = array[j+1];
+                    array[j+1] = temp;
+                }
+            }
   
+        printf("\t\tAccount Number");
+        printf("\t\tBalance\n\n");
+       //loops through out list
+        while (l)  
+        {
+            if (l->userid)
+            {
+                printf("\t\t%d \t\t\t$%6.2f\n",l->userid, l->sum);
+                j++;
+            }
+            l=l->next;
+            if ((l == NULL) && (j<MAXSIZE))
+                l = header->next;
+        }
+
+    create_log(headerh,3,login,0);    
     option2(header,headerh,login,pin,cash);
 }
 //--------------------------------------------------------------------------------------------------//
@@ -874,14 +997,14 @@ int change_client_pin(ulist header,hlist headerh,int login,int pin,atm cash) // 
                  	l->pin = oldpin;
                 }*/
     
-    			l->pin = oldpin;
+    		l->pin = oldpin;
     			
                 printf("%s\n\n" ,__TIME__);
                 printf("PIN successfully changed\n");
                 create_log(headerh,11,login,newpin);
                 write_custdb(header);
                 
-				option1(header,headerh,login,oldpin,cash);
+		option1(header,headerh,login,oldpin,cash);
             }
             l=l->next;
         }
@@ -1114,28 +1237,28 @@ void read_custdb(ulist header)
     int i,pin,type,state,userid;
     float sum;
 	
-    FILE *f_clientes= fopen("customers.txt", "r"); 
-    int res = fscanf(f_clientes, "%d\t\t%d\t\t%f\t\t%d\t\t%d\n", &userid,&pin,&sum,&type,&state);
+    FILE *f_clients= fopen("customers.txt", "r"); 
+    int res = fscanf(f_clients, "%d\t\t%d\t\t%f\t\t%d\t\t%d\n", &userid,&pin,&sum,&type,&state);
     for (i = 0; res > 0; i++)
     {
         create_user(header,userid,pin,sum,type,state);
-        res = fscanf(f_clientes, "%d\t\t%d\t\t%f\t\t%d\t\t%d\n", &userid,&pin,&sum,&type,&state);
+        res = fscanf(f_clients, "%d\t\t%d\t\t%f\t\t%d\t\t%d\n", &userid,&pin,&sum,&type,&state);
     }
-    fclose (f_clientes);
+    fclose (f_clients);
 }
 //--------------------------------------------------------------------------------------------------//
 //Writes customers banking details to file ie. account no, pin, total funds, account type, and status
 void write_custdb(ulist header)
 {
     ulist l=header->next;
-    FILE *f_clientes = fopen("customers.txt", "w");
+    FILE *f_clients = fopen("customers.txt", "w");
  
     while (l)
     {
-        fprintf (f_clientes, "%d\t\t%d\t\t%6.2f\t\t%d\t\t%d\n", l->userid,l->pin,l->sum,l->type,l->state); 
+        fprintf (f_clients, "%d\t\t%d\t\t%6.2f\t\t%d\t\t%d\n", l->userid,l->pin,l->sum,l->type,l->state); 
         l=l->next;
     }
-    fclose(f_clientes);
+    fclose(f_clients);
 }
 //--------------------------------------------------------------------------------------------------//
 //Checks and Reads Activity logs to and from File

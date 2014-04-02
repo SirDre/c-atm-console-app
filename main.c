@@ -705,7 +705,7 @@ void print_log(ulist header,hlist headerh,int login,int pin,atm cash)
         else if (h->operation == 3) printf("ADMIN\t\t\t%d\t\tSHOWLIST\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
         else if (h->operation == 4) printf("ADMIN\t\t%d\t\tUSERCHECK\t\t%6.0f\t\t\n",h->opuserid,h->opactivity);
         else if (h->operation == 5) printf("ADMIN\t\t%d\t\tUSERUNLOCK\t\t%6.0f\t\t\n",h->opuserid,h->opactivity); 
-        else if (h->operation == 6) printf("ADMIN\t\t%d\t\tVAULT\t\t$%6.2f\t\t\n",h->opuserid,h->opactivity);
+        else if (h->operation == 6) printf("ADMIN\t\t\t%d\t\tVAULT\t\t\t$%6.2f\t\t\n",h->opuserid,h->opactivity);
 	else if (h->operation == 7) printf("CUSTOMER\t\t%d\t\tQUERY\t\t\n",h->opuserid);
         else if (h->operation == 8) printf("CUSTOMER\t\t%d\t\tDEPOSIT\t\t\t%6.2f\t\t\n",h->opuserid,h->opactivity);
         else if (h->operation == 9) printf("CUSTOMER\t\t%d\t\tWITHDRAW\t\t\t%6.2f\t\t\n",h->opuserid,h->opactivity);
@@ -902,7 +902,7 @@ void print_vault(ulist header,hlist headerh,int login,int pin,atm cash)
     printf("\t\t$%6.2f\n",value);
     printf("\t\t-----------------------------------------\n\n");
     
-    create_log(headerh,6,login,0);    
+    create_log(headerh,6,login,value);    
     option2(header,headerh,login,pin,cash);
 }
 
